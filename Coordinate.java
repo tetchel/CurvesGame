@@ -1,4 +1,5 @@
 package ca.etchells.curves;
+
 public class Coordinate {
     private double x, y;
 

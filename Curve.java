@@ -1,4 +1,5 @@
 package ca.etchells.curves;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
@@ -11,12 +12,12 @@ public class Curve {
     private static final double SPEED = 1.8;
     //4 is the max # of players RN so we specify 4 values for each of these
     private static final double[]   START_HEADINGS =   {45, 135, 225, 315};
-    private static final Color[]    COLORS =   {
-                                                Color.MAGENTA,
-                                                Color.WHITE,
-                                                Color.CYAN,
-                                                Color.GREEN
-                                            };
+    private static final Color[]    COLORS =    {
+                                                    Color.MAGENTA,
+                                                    Color.WHITE,
+                                                    Color.CYAN,
+                                                    Color.GREEN
+                                                };
 
     private HashSet<Ellipse2D.Double> path;
     private Coordinate current;
@@ -28,7 +29,7 @@ public class Curve {
     public Curve(int id) {
         path = new HashSet<>();
         heading = START_HEADINGS[id];
-        current = new Coordinate(800,450);
+        current = new Coordinate(800,400);
         color = COLORS[id];
         isAlive = true;
     }
@@ -55,9 +56,9 @@ public class Curve {
 
         int speed = 5;
         if(!b)
-            speed = -speed;
-
-        heading += speed;
+            heading -= speed;
+        else
+            heading += speed;
     }
 
     public HashSet<Ellipse2D.Double> getPath() {
