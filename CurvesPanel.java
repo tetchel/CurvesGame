@@ -5,11 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 
-public class CurvesPanel extends JPanel implements KeyListener {
+public class CurvesPanel extends JPanel {
 
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
@@ -21,66 +20,92 @@ public class CurvesPanel extends JPanel implements KeyListener {
     public CurvesPanel() {
         //basic set-up
         //IF CHANGING SIZE, CHANGE IN CURVES CLASS CONSTRUCTOR AS WELL
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        Dimension windowSize = new Dimension(WIDTH, HEIGHT);
+        setPreferredSize(windowSize);
         setBackground(Color.BLACK);
         setFocusable(true);
         requestFocus();
+
+        gameLoop = new javax.swing.Timer(17, new TimerListener());			//ticks 1000/17 = 60 FPS
 
         //fill curves array with initialized curve objects - ONE PER PLAYER, EDIT THIS NUMBER FOR FEWER PLAYERS
         //but be aware <4 players will result in exceptions being thrown for now.
         curves = new Curve[4];
         for(int i = 0; i < curves.length; i++) {
-            curves[i] = new Curve(i);
+            curves[i] = new Curve(i, windowSize);
         }
 
-        //add key bindings
-        addKeyListener(this);
-        //start a timer
-        gameLoop = new javax.swing.Timer(17, new TimerListener());			//ticks 1000/17 = 60 FPS
-        //gameLoop.start();
-    }
+        //add key bindings, this is heavy
 
-    ///////////////////////////////KEYLISTENER methods///////////////////////////////
-    //should really switch this to key bindings
-    @Override
-    public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_ENTER:
+        String[] keys = new String[] {  "leftAction",
+                                        "rightAction",
+                                        "QAction",
+                                        "WAction",
+                                        "VAction",
+                                        "BAction",
+                                        "OAction",
+                                        "PAction" };
+
+        //quick indexer for accessing key values
+        int i = 0;
+        //we do enter manually because its action is different from the others
+        //addInput and addAction are helper methods to minimize repetition
+        addInput(KeyEvent.VK_ENTER, "enterAction");
+        getActionMap().put("enterAction", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 start = true;
                 gameLoop.start();
-                break;
-            case KeyEvent.VK_LEFT:
-                curves[0].adjustHeading(false);
-                break;
-            case KeyEvent.VK_RIGHT:
-                curves[0].adjustHeading(true);
-                break;
-            case KeyEvent.VK_Q:
-                curves[1].adjustHeading(false);
-                break;
-            case KeyEvent.VK_W:
-                curves[1].adjustHeading(true);
-                break;
-            case KeyEvent.VK_V:
-                curves[2].adjustHeading(false);
-                break;
-            case KeyEvent.VK_B:
-                curves[2].adjustHeading(true);
-                break;
-            case KeyEvent.VK_O:
-                curves[3].adjustHeading(false);
-                break;
-            case KeyEvent.VK_P:
-                curves[3].adjustHeading(true);
-                break;
+            }
+        });
+
+        addInput(KeyEvent.VK_LEFT,  keys[i++]);
+        addInput(KeyEvent.VK_RIGHT, keys[i++]);
+        addInput(KeyEvent.VK_Q, keys[i++]);
+        addInput(KeyEvent.VK_W, keys[i++]);
+        addInput(KeyEvent.VK_V, keys[i++]);
+        addInput(KeyEvent.VK_B, keys[i++]);
+        addInput(KeyEvent.VK_O, keys[i++]);
+        addInput(KeyEvent.VK_P, keys[i]);
+
+        //map curve turning actions
+        int j = 0;
+        for(i = 1; i < keys.length; i++) {
+            boolean b = false;
+            if(i % 2 == 0) {
+                j++;
+                b = true;
+            }
+            addAction(keys[i], j, b);
         }
+
     }
 
-    //why do i need to have these, stupid interfaces
-    @Override
-    public void keyReleased(KeyEvent e) {}
-    @Override
-    public void keyTyped(KeyEvent e) {}
+    ///////////////////////////////KEYBINDINGS methods///////////////////////////////
+
+    /**
+     * Helper method for the constructor so I don't have to manually put all the inputs
+     * @param keyChar key code for the binding
+     * @param key name for the binding
+     */
+    private void addInput(int keyChar, String key) {
+        getInputMap().put(KeyStroke.getKeyStroke(keyChar, 0), key);
+    }
+
+    /**
+     * Helper method for the constructor so that I don't have to manually put all the actions
+     * @param key the actionMap name
+     * @param index the curve # the key corresponds to
+     * @param b whether to increase the curve's heading positively or negatively
+     */
+    private void addAction(String key, final int index, final boolean b) {
+        getActionMap().put(key, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                curves[index].adjustHeading(b);
+            }
+        });
+    }
 
     ///////////////////////////////GAME methods///////////////////////////////
     //timer which ticks 60 times/second to update the window at a silky smooth 60fps.
