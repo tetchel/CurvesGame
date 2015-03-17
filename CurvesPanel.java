@@ -1,6 +1,6 @@
 package ca.etchells.curves;
 
-import java.applet.Applet;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +9,7 @@ import java.awt.event.KeyListener;
 import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 
-public class CurvesApplet extends Applet implements KeyListener {
+public class CurvesPanel extends JPanel implements KeyListener {
 
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
@@ -18,19 +18,13 @@ public class CurvesApplet extends Applet implements KeyListener {
                                 WIDTH  = 1600;
 
     ///////////////////////////////APPLET methods///////////////////////////////
-    @Override
-    public void init() {
+    public CurvesPanel() {
         //basic set-up
         //IF CHANGING SIZE, CHANGE IN CURVES CLASS CONSTRUCTOR AS WELL
-        setSize(new Dimension(WIDTH, HEIGHT));
-
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
-        //applet window is contained in frame f
-        Frame f = (Frame) this.getParent().getParent();
-        f.setSize(getSize());
-        f.setResizable(false);
-        f.setTitle("~~~~~~~~~~~~~~~ Curves ~~~~~~~~~~~~~~~");
+        requestFocus();
 
         //fill curves array with initialized curve objects - ONE PER PLAYER, EDIT THIS NUMBER FOR FEWER PLAYERS
         //but be aware <4 players will result in exceptions being thrown for now.
@@ -46,29 +40,13 @@ public class CurvesApplet extends Applet implements KeyListener {
         //gameLoop.start();
     }
 
-    @Override
-    public void start() {
-        //start the game loop
-        super.start();
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
-    }
-
-    @Override
-    public void destroy() {
-        gameLoop.stop();
-        super.destroy();
-    }
-
     ///////////////////////////////KEYLISTENER methods///////////////////////////////
-
+    //should really switch this to key bindings
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ENTER:
+                start = true;
                 gameLoop.start();
                 break;
             case KeyEvent.VK_LEFT:
@@ -105,15 +83,22 @@ public class CurvesApplet extends Applet implements KeyListener {
     public void keyTyped(KeyEvent e) {}
 
     ///////////////////////////////GAME methods///////////////////////////////
-    public class TimerListener implements ActionListener {
+    //timer which ticks 60 times/second to update the window at a silky smooth 60fps.
+    private class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
             repaint();		//redraw the window
         }
     }
 
+    public void terminate() {
+        gameLoop.stop();
+        System.out.println("BYE");
+        System.exit(0);
+    }
+
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -134,26 +119,14 @@ public class CurvesApplet extends Applet implements KeyListener {
             g2.setPaint(Color.WHITE);
             g2.drawString("PRESS ENTER TO START", stringx-135, stringy + 150);
         }
-    }
-
-    /**
-     * Contains all tasks that are performed on each "tick" of the clock -> updates positions etc.
-     */
-    @Override
-    public void update(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if(!start) {
-            start = true;
+        else {
             //hack solution to hide intro text
-            g2.setPaint(Color.BLACK);
+            g2.setPaint(getBackground());
             g2.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
         for(Curve c : curves) {
-            //add collision detection
+            //add collision detection here
             c.advance();
             HashSet<Ellipse2D.Double> currentPath = c.getPath();
             g2.setPaint(c.getColor());
