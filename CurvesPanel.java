@@ -19,7 +19,6 @@ public class CurvesPanel extends JPanel {
     ///////////////////////////////APPLET methods///////////////////////////////
     public CurvesPanel() {
         //basic set-up
-        //IF CHANGING SIZE, CHANGE IN CURVES CLASS CONSTRUCTOR AS WELL
         Dimension windowSize = new Dimension(WIDTH, HEIGHT);
         setPreferredSize(windowSize);
         setBackground(Color.BLACK);
@@ -36,7 +35,7 @@ public class CurvesPanel extends JPanel {
         }
 
         //add key bindings, this is heavy
-
+        //the name of each key binding
         String[] keys = new String[] {  "leftAction",
                                         "rightAction",
                                         "QAction",
@@ -44,10 +43,10 @@ public class CurvesPanel extends JPanel {
                                         "VAction",
                                         "BAction",
                                         "OAction",
-                                        "PAction" };
+                                        "PAction"
+                                    };
 
-        //quick indexer for accessing key values
-        int i = 0;
+
         //we do enter manually because its action is different from the others
         //addInput and addAction are helper methods to minimize repetition
         addInput(KeyEvent.VK_ENTER, "enterAction");
@@ -59,6 +58,9 @@ public class CurvesPanel extends JPanel {
             }
         });
 
+        //quick iterator for accessing key values
+        //can't use a loop, the keyChar changes each time
+        int i = 0;
         addInput(KeyEvent.VK_LEFT,  keys[i++]);
         addInput(KeyEvent.VK_RIGHT, keys[i++]);
         addInput(KeyEvent.VK_Q, keys[i++]);
@@ -78,7 +80,6 @@ public class CurvesPanel extends JPanel {
             }
             addAction(keys[i], j, b);
         }
-
     }
 
     ///////////////////////////////KEYBINDINGS methods///////////////////////////////
@@ -116,18 +117,23 @@ public class CurvesPanel extends JPanel {
         }
     }
 
+    /**
+     * Called when the containing frame is closed
+     */
     public void terminate() {
         gameLoop.stop();
-        System.out.println("BYE");
         System.exit(0);
     }
 
     @Override
     public void paintComponent(Graphics g) {
+        //antialiasing makes things look cleaner
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
+
         if(!start) {
+            //output intro text
             int stringy = HEIGHT/2, stringx = WIDTH/2;
             //prepare for the most magical of numbers
             g2.setPaint(Color.WHITE);
@@ -150,11 +156,13 @@ public class CurvesPanel extends JPanel {
             g2.fillRect(0, 0, WIDTH, HEIGHT);
         }
 
+        //draw the curves
         for(Curve c : curves) {
-            //add collision detection here
+            //add the next curve segment
             c.advance();
             HashSet<Ellipse2D.Double> currentPath = c.getPath();
             g2.setPaint(c.getColor());
+            //loop through each segment of the curve and draw
             for(Shape s : currentPath) {
                 g2.fill(s);
             }
