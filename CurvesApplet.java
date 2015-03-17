@@ -56,19 +56,19 @@ public class CurvesApplet extends Applet implements KeyListener {
             case KeyEvent.VK_Q:
                 curves[1].adjustHeading(false);
                 break;
-            case KeyEvent.VK_E:
+            case KeyEvent.VK_W:
                 curves[1].adjustHeading(true);
                 break;
             case KeyEvent.VK_V:
                 curves[2].adjustHeading(false);
                 break;
-            case KeyEvent.VK_N:
+            case KeyEvent.VK_B:
                 curves[2].adjustHeading(true);
                 break;
             case KeyEvent.VK_I:
                 curves[3].adjustHeading(false);
                 break;
-            case KeyEvent.VK_P:
+            case KeyEvent.VK_O:
                 curves[3].adjustHeading(true);
                 break;
         }
@@ -103,7 +103,7 @@ public class CurvesApplet extends Applet implements KeyListener {
     public class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
-            repaint();		//redraw the window 60 times per second
+            repaint();		//redraw the window
         }
     }
 
