@@ -13,38 +13,41 @@ public class CurvesPanel extends JPanel {
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
     private boolean start = false;
-    private static final int    HEIGHT = 900,
-                                WIDTH  = 1600;
-
+    private int     height, width,
+    //TODO allow user to pick numPlayers
+                    numPlayers = 4;
     ///////////////////////////////APPLET methods///////////////////////////////
-    public CurvesPanel() {
+    public CurvesPanel(Dimension d) {
         //basic set-up
-        Dimension windowSize = new Dimension(WIDTH, HEIGHT);
-        setPreferredSize(windowSize);
+        setPreferredSize(d);
         setBackground(Color.BLACK);
         setFocusable(true);
         requestFocus();
 
+        height  =   (int)d.getHeight();
+        width   =   (int)d.getWidth();
+
         gameLoop = new javax.swing.Timer(17, new TimerListener());			//ticks 1000/17 = 60 FPS
 
-        //fill curves array with initialized curve objects - ONE PER PLAYER, EDIT THIS NUMBER FOR FEWER PLAYERS
-        //but be aware <4 players will result in exceptions being thrown for now.
-        curves = new Curve[4];
+        //be aware <4 players will result in exceptions being thrown for now.
+
+        curves = new Curve[numPlayers];
         for(int i = 0; i < curves.length; i++) {
-            curves[i] = new Curve(i, windowSize);
+            curves[i] = new Curve(i, d);
         }
 
         //add key bindings, this is heavy
         //the name of each key binding
-        String[] keys = new String[] {  "leftAction",
-                                        "rightAction",
-                                        "QAction",
-                                        "WAction",
-                                        "VAction",
-                                        "BAction",
-                                        "OAction",
-                                        "PAction"
-                                    };
+        final String[] KEYS = new String[]  {
+                                                "leftAction",
+                                                "rightAction",
+                                                "QAction",
+                                                "WAction",
+                                                "VAction",
+                                                "BAction",
+                                                "OAction",
+                                                "PAction"
+                                            };
 
 
         //we do enter manually because its action is different from the others
@@ -61,24 +64,26 @@ public class CurvesPanel extends JPanel {
         //quick iterator for accessing key values
         //can't use a loop, the keyChar changes each time
         int i = 0;
-        addInput(KeyEvent.VK_LEFT,  keys[i++]);
-        addInput(KeyEvent.VK_RIGHT, keys[i++]);
-        addInput(KeyEvent.VK_Q, keys[i++]);
-        addInput(KeyEvent.VK_W, keys[i++]);
-        addInput(KeyEvent.VK_V, keys[i++]);
-        addInput(KeyEvent.VK_B, keys[i++]);
-        addInput(KeyEvent.VK_O, keys[i++]);
-        addInput(KeyEvent.VK_P, keys[i]);
+        addInput(KeyEvent.VK_LEFT,  KEYS[i++]);
+        addInput(KeyEvent.VK_RIGHT, KEYS[i++]);
+        addInput(KeyEvent.VK_Q, KEYS[i++]);
+        addInput(KeyEvent.VK_W, KEYS[i++]);
+        addInput(KeyEvent.VK_V, KEYS[i++]);
+        addInput(KeyEvent.VK_B, KEYS[i++]);
+        addInput(KeyEvent.VK_O, KEYS[i++]);
+        addInput(KeyEvent.VK_P, KEYS[i]);
 
         //map curve turning actions
+        //manually map the first one so the loop works for the rest
+        addAction(KEYS[0], 0, true);
         int j = 0;
-        for(i = 1; i < keys.length; i++) {
+        for(i = 1; i < KEYS.length; i++) {
             boolean b = false;
             if(i % 2 == 0) {
                 j++;
                 b = true;
             }
-            addAction(keys[i], j, b);
+            addAction(KEYS[i], j, b);
         }
     }
 
@@ -103,7 +108,13 @@ public class CurvesPanel extends JPanel {
         getActionMap().put(key, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                curves[index].adjustHeading(b);
+                Curve c = null;
+                try {
+                    c = curves[index];
+                    if(c.isAlive())
+                        c.adjustHeading(b);
+                }
+                catch(ArrayIndexOutOfBoundsException ae) {}
             }
         });
     }
@@ -125,41 +136,48 @@ public class CurvesPanel extends JPanel {
         System.exit(0);
     }
 
+
+    ///////////////////////////////paintComponent///////////////////////////////
     @Override
     public void paintComponent(Graphics g) {
-        //antialiasing makes things look cleaner
+        //antialiasing looks better
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
+        //output intro text
         if(!start) {
-            //output intro text
-            int stringy = HEIGHT/2, stringx = WIDTH/2;
+            int stringy = height/2, stringx = width/2;
             //prepare for the most magical of numbers
             g2.setPaint(Color.WHITE);
             g2.setFont(new Font("Comic Sans", Font.BOLD, 20));
             g2.drawString("WELCOME TO CURVES", stringx - 130, stringy - 50);
-            g2.setPaint(curves[0].getColor());
-            g2.drawString("PINK USES ARROWS", stringx-110, stringy + 20);
-            g2.setPaint(curves[1].getColor());
-            g2.drawString("WHITE USES Q/W", stringx-95, stringy + 40);
-            g2.setPaint(curves[2].getColor());
-            g2.drawString("BLUE USES V/B", stringx-87, stringy + 60);
-            g2.setPaint(curves[3].getColor());
-            g2.drawString("GREEN USES O/P", stringx-95, stringy + 80);
-            g2.setPaint(Color.WHITE);
-            g2.drawString("PRESS ENTER TO START", stringx-135, stringy + 150);
+            try {
+                g2.setPaint(curves[0].getColor());
+                g2.drawString("PINK USES ARROWS", stringx - 110, stringy + 20);
+                g2.setPaint(curves[1].getColor());
+                g2.drawString("WHITE USES Q/W", stringx - 95, stringy + 40);
+                g2.setPaint(curves[2].getColor());
+                g2.drawString("BLUE USES V/B", stringx - 87, stringy + 60);
+                g2.setPaint(curves[3].getColor());
+                g2.drawString("GREEN USES O/P", stringx - 95, stringy + 80);
+            }
+            catch(ArrayIndexOutOfBoundsException e) {
+                g2.setPaint(Color.WHITE);
+                g2.drawString("PRESS ENTER TO START", stringx - 135, stringy + 150);
+            }
         }
         else {
             //hack solution to hide intro text
             g2.setPaint(getBackground());
-            g2.fillRect(0, 0, WIDTH, HEIGHT);
+            g2.fillRect(0, 0, width, height);
         }
 
         //draw the curves
         for(Curve c : curves) {
             //add the next curve segment
-            c.advance();
+            if(c.isAlive())
+                c.advance();
             HashSet<Ellipse2D.Double> currentPath = c.getPath();
             g2.setPaint(c.getColor());
             //loop through each segment of the curve and draw

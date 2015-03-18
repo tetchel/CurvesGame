@@ -10,10 +10,9 @@ public class Curve {
     //size of each circle centered around a coordinate
     private static final int SIZE = 10;
     //speed at which curves move
-    private static final double SPEED = 2;
+    private static final double SPEED = 2.2;
     //4 is the max # of players RN so we specify 4 values for each of these
     //these hardcoded values are hopefully temporary. maybe switch to starting from the corners?
-    private static final double[]   START_SPOTS     =   {45, 855, 45, 855};
     private static final Color[]    COLORS =    {
                                                     Color.MAGENTA,
                                                     Color.WHITE,
@@ -42,22 +41,41 @@ public class Curve {
      * @param size is a bit of a strange way to do this, but it works.
      */
     public Curve(int id, Dimension size) {
-        path = new HashSet<>();
-        //players 0 and 1 start from left
-        if(id < 2) {
-            heading = 0;
-            x = 50;
-        }
-        //2 and 3 start from right
-        else {
-            heading = 180;
-            x = 1550;
-        }
-        y = START_SPOTS[id];
-        color = COLORS[id];
-        isAlive = true;
+        //get dimensions from the input
         WIDTH = size.getWidth();
         HEIGHT = size.getHeight();
+        //set initial positions
+        //how far to offset the curves from each corner
+        final int OFFSET = 15;
+        //players 0 and 2 start from left
+        //these are done manually because there are only 4 maximum
+        if(id == 0 || id == 2) {
+            x = OFFSET;
+            if(id == 0) {
+                y = OFFSET;
+                heading = 45;
+            }
+            else {
+                y = HEIGHT-OFFSET;
+                heading = 315;
+            }
+        }
+        //1 and 3 start from right
+        else {
+            x = WIDTH-OFFSET;
+            if(id == 1) {
+                y = OFFSET;
+                heading = 135;
+            }
+            else {
+                y = HEIGHT-OFFSET;
+                heading = 225;
+            }
+        }
+
+        path = new HashSet<>();
+        color = COLORS[id];
+        isAlive = true;
     }
 
     /**
@@ -66,20 +84,18 @@ public class Curve {
      */
     public void advance() {
         //advance current based on heading first
-        //access this value twice so we store it, can't modify heading
-        if(!isAlive())
-            return;
-
         //calculate next part of the curve
+
+        //access this value twice so we store it, modifying heading leads to issues
         double toRadians = Math.toRadians(heading);
         x += Math.cos(toRadians) * SPEED;
-        y += Math.sin(toRadians)*SPEED;
+        y += Math.sin(toRadians) * SPEED;
         //check for collisions
         //wall collisions
         if(x >= WIDTH || x <= SIZE/2 || y >= HEIGHT || y <= SIZE/2)
             kill();
 
-        //curve collisions
+        //TODO curve collisions
 
         //update the path if everything is OK
         path.add(new Ellipse2D.Double(x, y, SIZE, SIZE));
@@ -100,12 +116,9 @@ public class Curve {
 
     /**
      * Adjusts the direction of the curve when user input is given.
-     * @param b specifies whether to move in the positive or negative direction (it doesn't matter which is which)
+     * @param b specifies whether to move in the positive or negative direction
      */
     public void adjustHeading(boolean b) {
-        if(!this.isAlive())
-            return;
-
         int speed = 5;
         if(!b)
             heading -= speed;
@@ -113,19 +126,33 @@ public class Curve {
             heading += speed;
     }
 
+    /**
+     * Returns a hash set of ellipses representing the curve
+     * @return the path as a hashset of ellipses
+     */
     public HashSet<Ellipse2D.Double> getPath() {
         return path;
     }
 
+    /**
+     *
+     * @return the color of this curve (red if dead)
+     */
     public Color getColor() {
         return color;
     }
 
+    /**
+     *
+     * @return whether or not this curve is still active
+     */
     public boolean isAlive() {
         return isAlive;
     }
 
-    //kills a curve
+    /**
+     * kills the curve, making it red and making it no longer respond to input (since all input method calls check isAlive())
+     */
     private void kill() {
         isAlive = false;
         color = Color.RED;
