@@ -12,7 +12,7 @@ public class CurvesMain {
      */
     public static void main(String[] a) {
         //frame to contain the panel
-        final JFrame f = new JFrame("~~~~~~~~~~~~~~~ Drawing simulator 2015 ~~~~~~~~~~~~~~~");
+        final JFrame f = new JFrame("~~~~~~~~~~~~~~~ Curves ~~~~~~~~~~~~~~~");
 
         Dimension d = null;
         //4 players if nothing specified
@@ -20,6 +20,10 @@ public class CurvesMain {
         try {
             d = new Dimension(Integer.parseInt(a[0]), Integer.parseInt(a[1]));
             numPlayers = Integer.parseInt(a[2]);
+            if(numPlayers < 1 || numPlayers > 4) {
+                System.out.println("1-4 players required.");
+                System.exit(-2);
+            }
         }
         catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {
             exit();
@@ -30,10 +34,9 @@ public class CurvesMain {
         //match the frame's size to the panel
         f.setSize(cp.getSize());
         f.setBackground(Color.BLACK);
-
         f.add(cp);
 
-        //when the window is closed, terminate the game loop and throw out the frame
+        //when the window is closed, terminate the game loop and dispose
         f.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 f.dispose();

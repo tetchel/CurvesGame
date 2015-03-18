@@ -181,7 +181,7 @@ public class CurvesPanel extends JPanel {
      * @param g the graphics object corresponding to the panel
      */
     @Override
-    public void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {
         //looks better
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -221,15 +221,15 @@ public class CurvesPanel extends JPanel {
                     g2.setPaint(Color.WHITE);
                 //awesome method of automatically centering strings
                 String s = OUTPUTS[i];
-                int len = (int)g2.getFontMetrics().getStringBounds(s, g2).getWidth();
-                //draw each string
-                g2.drawString(s, width/2 - len/2, stringy+=25);
+                //draw each string taking into account the length of the string in pixels
+                g2.drawString(s, width/2 - getStringLength(s,g2)/2, stringy+=25);
             }
         }
         //intro is over
         else {
             //hack solution to hide intro text
             g2.setPaint(getBackground());
+            //the +50s are required for some reason or it doesn't fill the whole panel
             g2.fillRect(0, 0, width + 50, height + 50);
         }
         //draw the curves
@@ -250,8 +250,8 @@ public class CurvesPanel extends JPanel {
             //it's a tie
             g2.setPaint(Color.RED);
             g2.setFont(MSG_FONT);
-            //+1 since most people use 1-based indexing!
-            g2.drawString("It's a tie!", width/2-50, height/2);
+            String s = "It's a tie!";
+            g2.drawString(s, width/2-getStringLength(s,g2)/2, height/2);
             gameLoop.stop();
         }
         //output win message
@@ -259,8 +259,19 @@ public class CurvesPanel extends JPanel {
             g2.setPaint(curves[winnerId].getColor());
             g2.setFont(MSG_FONT);
             //+1 since most people use 1-based indexing!
-            g2.drawString("Player " + (winnerId+1) + " has won!", width/2-100, height/2);
+            String s = "Player " + (winnerId+1) + " has won!";
+            g2.drawString(s, width/2-getStringLength(s,g2)/2, height/2);
             gameLoop.stop();
         }
+    }
+    /**
+     * takes a string and graphics object and returns the length of the string in the given graphics context in pixels
+     * @param s the string to find the length of
+     * @param g2 the graphics object on which the string is to be drawn
+     * @return the length of the string in pixels
+     */
+    private int getStringLength(String s, Graphics2D g2) {
+        //the magic of swing, I won't pretend to know what exactly this does
+        return (int)g2.getFontMetrics().getStringBounds(s, g2).getWidth();
     }
 }

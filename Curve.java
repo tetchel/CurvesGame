@@ -45,6 +45,7 @@ public class Curve {
         //get dimensions from the input
         width = size.getWidth();
         height = size.getHeight();
+        //initialize fields
         id = idIn;
         path = new HashSet<>();
         color = COLORS[id];
