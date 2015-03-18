@@ -14,7 +14,6 @@ public class CurvesPanel extends JPanel {
     private boolean start = false;
     private int     height, width, winnerId = -1;
     private static final int GAME_TIED = 99;
-    //TODO allow user to pick numPlayers
     ///////////////////////////////PANEL constructor///////////////////////////////
     public CurvesPanel(final Dimension d, int numPlayersIn) {
         //basic set-up

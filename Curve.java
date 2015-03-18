@@ -97,8 +97,8 @@ public class Curve {
         //next part of the curve to be added
         CurveSegment next = new CurveSegment(x, y, SIZE, SIZE, segment_counter++);
 
-        for(int i = 0; i < curves.length; i++) {
-            checkCollision(next, curves[i], getId() == curves[i].getId());
+        for(Curve c : curves) {
+            checkCollision(next, c, getId() == c.getId());
         }
         //update the path if everything is OK
         path.add(next);
@@ -170,13 +170,6 @@ public class Curve {
      */
     public boolean isAlive() {
         return isAlive;
-    }
-    /**
-     *
-     * @return the size of an individual circle
-     */
-    public int getSize() {
-        return SIZE;
     }
     /**
      *
