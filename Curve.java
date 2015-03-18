@@ -9,12 +9,12 @@ public class Curve {
     //size of each circle centered around a coordinate
     private final int SIZE = 10;
     //speed at which curves move
-    private final double SPEED = 3;
+    private final double SPEED = 2.2;
     //4 is the max # of players RN so we specify 4 values for each of these
     //these hardcoded values are hopefully temporary. maybe switch to starting from the corners?
     private static final Color[]    COLORS =    {
                                                     Color.MAGENTA,
-                                                    Color.WHITE,
+                                                    Color.CYAN,
                                                     Color.YELLOW,
                                                     Color.GREEN
                                                 };
@@ -92,7 +92,7 @@ public class Curve {
         //check for collisions
         //wall collisions
         if(x >= width || x <= SIZE/2 || y >= height || y <= SIZE/2)
-            kill();
+            killCurve();
 
         //next part of the curve to be added
         CurveSegment next = new CurveSegment(x, y, SIZE, SIZE, segment_counter++);
@@ -123,7 +123,7 @@ public class Curve {
             if (distance <= SIZE) {
                 //System.out.printf("Curve %d has collided with curve %d%n", getId(), curve.getId());
                 //System.out.printf("Collision points: x: %g y: %g x: %g y: %g%n", c.getX(), c.getY(), current.getX(), current.getY());
-                kill();
+                killCurve();
             }
         }
     }
@@ -144,11 +144,12 @@ public class Curve {
      * @param b specifies whether to move in the positive or negative direction
      */
     public void adjustHeading(boolean b) {
-        int speed = 5;
+        //adjust this value for turns to accelerate faster
+        int turnSpeed = 6;
         if(!b)
-            heading -= speed;
+            heading -= turnSpeed;
         else
-            heading += speed;
+            heading += turnSpeed;
     }
     /**
      * Returns a hash set of ellipses representing the curve
@@ -181,7 +182,7 @@ public class Curve {
     /**
      * kills the curve, making it red and making it no longer respond to input (since all input method calls check isAlive())
      */
-    private void kill() {
+    private void killCurve() {
         isAlive = false;
         color = Color.RED;
     }

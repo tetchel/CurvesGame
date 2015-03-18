@@ -187,29 +187,44 @@ public class CurvesPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
-        Font msgFont = new Font("Comic Sans", Font.BOLD, 20);
+        //font to be used for messages to user
+        final Font MSG_FONT = new Font("Arial Black", Font.PLAIN, 20);
         //output intro text
         if(!start) {
-            int stringy = height/2, stringx = width/2;
             //prepare for the most magical of numbers
             g2.setPaint(Color.WHITE);
-            g2.setFont(msgFont);
-            g2.drawString("WELCOME TO CURVES", stringx - 122, stringy - 50);
-            //draw the intro messages for each player
-            try {
-                g2.setPaint(curves[0].getColor());
-                g2.drawString("PINK USES ARROWS", stringx - 105, stringy + 20);
-                g2.setPaint(curves[1].getColor());
-                g2.drawString("WHITE USES Q/W", stringx - 90, stringy + 40);
-                g2.setPaint(curves[2].getColor());
-                g2.drawString("BLUE USES V/B", stringx - 82, stringy + 60);
-                g2.setPaint(curves[3].getColor());
-                g2.drawString("GREEN USES O/P", stringx - 90, stringy + 80);
+            g2.setFont(MSG_FONT);
+            final String[] OUTPUTS = new String[]   {
+                                                        "Welcome to CURVES",
+                                                        "PINK USES ARROWS",
+                                                        "BLUE USES Q/W",
+                                                        "YELLOW USES V/B",
+                                                        "GREEN USES O/P",
+                                                        "Press ENTER for a new game"
+                                                    };
+            //where the top string will be drawn
+            int stringy = height/5;
+            for(int i = 0; i < OUTPUTS.length; i++) {
+                //if we're outputting a "PLAYER USES BUTTONS" method, do it in the player's colour
+                if(i > 0 && i < OUTPUTS.length-1) {
+                    //try/catch required in case there are <4 players
+                    try {
+                        g2.setPaint(curves[i - 1].getColor());
+                    }
+                    catch(ArrayIndexOutOfBoundsException e) {
+                        //if it's out-of-bounds just go to the next iteration (until you reach the last one)
+                        continue;
+                    }
+                }
+                //else do it in the default white
+                else
+                    g2.setPaint(Color.WHITE);
+                //awesome method of automatically centering strings
+                String s = OUTPUTS[i];
+                int len = (int)g2.getFontMetrics().getStringBounds(s, g2).getWidth();
+                //draw each string
+                g2.drawString(s, width/2 - len/2, stringy+=25);
             }
-            //if an exception was thrown we just catch it without printing the succeeding player messages
-            catch(ArrayIndexOutOfBoundsException e) {}
-            g2.setPaint(Color.WHITE);
-            g2.drawString("PRESS ENTER FOR NEW GAME AT ANY TIME", stringx - 225, stringy + 150);
         }
         //intro is over
         else {
@@ -234,7 +249,7 @@ public class CurvesPanel extends JPanel {
         if(winnerId == GAME_TIED) {
             //it's a tie
             g2.setPaint(Color.RED);
-            g2.setFont(msgFont);
+            g2.setFont(MSG_FONT);
             //+1 since most people use 1-based indexing!
             g2.drawString("It's a tie!", width/2-50, height/2);
             gameLoop.stop();
@@ -242,7 +257,7 @@ public class CurvesPanel extends JPanel {
         //output win message
         else if(winnerId != -1) {
             g2.setPaint(curves[winnerId].getColor());
-            g2.setFont(msgFont);
+            g2.setFont(MSG_FONT);
             //+1 since most people use 1-based indexing!
             g2.drawString("Player " + (winnerId+1) + " has won!", width/2-100, height/2);
             gameLoop.stop();
