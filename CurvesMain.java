@@ -46,6 +46,9 @@ public class CurvesMain {
         f.setVisible(true);
     }
 
+    /**
+     * called when command line arguments are invalid
+     */
     private static void exit() {
         System.out.println("Usage: java -jar Curves.jar <width> <height> <number_of_players>");
         System.exit(-1);

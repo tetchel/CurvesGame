@@ -1,7 +1,6 @@
 package ca.etchells.curves;
 
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 
 //represents a curve in the game as a series of points the curve has visited.
@@ -10,7 +9,7 @@ public class Curve {
     //size of each circle centered around a coordinate
     private final int SIZE = 10;
     //speed at which curves move
-    private final double SPEED = 4;
+    private final double SPEED = 3;
     //4 is the max # of players RN so we specify 4 values for each of these
     //these hardcoded values are hopefully temporary. maybe switch to starting from the corners?
     private static final Color[]    COLORS =    {
@@ -20,7 +19,7 @@ public class Curve {
                                                     Color.GREEN
                                                 };
     //contains the circles that make up each curve
-    private HashSet<Ellipse2D.Double> path;
+    private HashSet<CurveSegment> path;
     //x, y are the coordinates of the 'current' curve segment, heading is the
     private double  x, y,
     //angle at which the curve is going
@@ -34,6 +33,8 @@ public class Curve {
     private boolean isAlive;
     //which curve number this is
     private int id;
+    //used to give each new CurveSegment a unique ID
+    private int segment_counter = 0;
 
     /**
      * Constructor for a curve, initializes fields and starts it from the centre of the window.
@@ -83,9 +84,6 @@ public class Curve {
      * @param curves the set of curves for collision checking
      */
     public void advance(Curve[] curves) {
-        //advance current based on heading first
-        //calculate next part of the curve
-
         //access this value twice so we store it, modifying heading leads to issues
         double toRadians = Math.toRadians(heading);
         //get the x and y component of speed
@@ -97,13 +95,10 @@ public class Curve {
             kill();
 
         //next part of the curve to be added
-        Ellipse2D.Double next = new Ellipse2D.Double(x, y, SIZE, SIZE);
+        CurveSegment next = new CurveSegment(x, y, SIZE, SIZE, segment_counter++);
 
         for(int i = 0; i < curves.length; i++) {
-            //check collision will kill the colliding curve if a collision exists
-            //TODO remove the 'if' and modify so that they can suicide
-            if(getId() != curves[i].getId())
-                checkCollision(next, curves[i]);
+            checkCollision(next, curves[i], getId() == curves[i].getId());
         }
         //update the path if everything is OK
         path.add(next);
@@ -112,16 +107,22 @@ public class Curve {
      * Checks to see if a node collides with a specified curve
      * @param current node to check for collisions with
      * @param curve   curve to check for collisions against
+     * @param isSelfCollision if we are checking to see if the curve is colliding with itself or not
      */
-    public void checkCollision(Ellipse2D.Double current, Curve curve) {
-        for(Ellipse2D.Double e : curve.getPath()) {
-            double distance = cartDistance(e.getX(), e.getY(), current.getX(), current.getY());
-            //TODO fix this so they can collide with themselves
-            //if(e != current && distance > SPEED && distance < SIZE) {
-            if(distance <= SIZE) {
-                //TODO right now when a collision occurs you see that it happens twice, why is this?
-                System.out.printf("Curve %d has collided with curve %d%n", getId(), curve.getId());
-                System.out.printf("Collision points: x: %g y: %g x: %g y: %g%n", e.getX(), e.getY(), current.getX(), current.getY());
+    public void checkCollision(CurveSegment current, Curve curve, boolean isSelfCollision) {
+        for(CurveSegment c : curve.getPath()) {
+            //this part is confusing - if we are checking for a self collision, we have to ensure the segment we are
+            //checking against is not the successive segment.
+            //without this if statement, all curves instantly die
+            //the number of segments to ignore is scaled by speed.
+            if(isSelfCollision && (current.getId() <= c.getId() + SPEED*2)) {
+                return;
+            }
+            //calculate distance and see if there is a collision or not.
+            double distance = cartDistance(c.getX(), c.getY(), current.getX(), current.getY());
+            if (distance <= SIZE) {
+                //System.out.printf("Curve %d has collided with curve %d%n", getId(), curve.getId());
+                //System.out.printf("Collision points: x: %g y: %g x: %g y: %g%n", c.getX(), c.getY(), current.getX(), current.getY());
                 kill();
             }
         }
@@ -153,7 +154,7 @@ public class Curve {
      * Returns a hash set of ellipses representing the curve
      * @return the path as a hashset of ellipses
      */
-    public HashSet<Ellipse2D.Double> getPath() {
+    public HashSet<CurveSegment> getPath() {
         return path;
     }
     /**

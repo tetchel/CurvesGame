@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 
 public class CurvesPanel extends JPanel {
@@ -13,9 +12,10 @@ public class CurvesPanel extends JPanel {
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
     private boolean start = false;
-    private int     height, width, numPlayers, winnerId = -1;
+    private int     height, width, winnerId = -1;
+    private static final int GAME_TIED = 99;
     //TODO allow user to pick numPlayers
-    ///////////////////////////////PANEL methods///////////////////////////////
+    ///////////////////////////////PANEL constructor///////////////////////////////
     public CurvesPanel(final Dimension d, int numPlayersIn) {
         //basic set-up
         setPreferredSize(d);
@@ -25,7 +25,6 @@ public class CurvesPanel extends JPanel {
 
         height  =   (int)d.getHeight();
         width   =   (int)d.getWidth();
-        numPlayers = numPlayersIn;
         gameLoop = new javax.swing.Timer(17, new TimerListener());			//ticks 1000/17 = 60 FPS
 
         curves = new Curve[numPlayersIn];
@@ -44,7 +43,6 @@ public class CurvesPanel extends JPanel {
                                                 "OAction",
                                                 "PAction"
                                             };
-
         /*
             CONTROLS
             ENTER RESTART GAME
@@ -54,8 +52,7 @@ public class CurvesPanel extends JPanel {
             V/B P3
             O/P P4
          */
-
-        //we do enter and escmanually because its action is different from the others
+        //we do enter and esc manually because they are not movement actions
         //addMoveInput and addMoveAction are helper methods to minimize repetition
         addMoveInput(KeyEvent.VK_ENTER, "enterAction");
         getActionMap().put("enterAction", new AbstractAction() {
@@ -148,6 +145,7 @@ public class CurvesPanel extends JPanel {
     public class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent ae) {
+            //check for a win/tie state
             //number of living curves
             int alive = 0;
             //holds the id of each living curve, accessed if only 1 is left so that we have the winner id
@@ -159,15 +157,14 @@ public class CurvesPanel extends JPanel {
                     tmp = c.getId();
                 }
             }
+            //one player is left, game ends
             if(alive == 1) {
                 //game is over
                 winnerId = tmp;
             }
             //if tmp was never set, every curve is dead!
             else if(tmp == -1) {
-                //99 is arbitrary 'code' number to say that everyone is dead
-                //should use static final variable but why would I change this ever?
-                winnerId = 99;
+                winnerId = GAME_TIED;
             }
             repaint();		//redraw the window every tick
         }
@@ -180,6 +177,10 @@ public class CurvesPanel extends JPanel {
         System.exit(0);
     }
     ///////////////////////////////paintComponent///////////////////////////////
+    /**
+     * paintComponent for the main game panel, draws everything
+     * @param g the graphics object corresponding to the panel
+     */
     @Override
     public void paintComponent(Graphics g) {
         //looks better
@@ -195,6 +196,7 @@ public class CurvesPanel extends JPanel {
             g2.setPaint(Color.WHITE);
             g2.setFont(msgFont);
             g2.drawString("WELCOME TO CURVES", stringx - 122, stringy - 50);
+            //draw the intro messages for each player
             try {
                 g2.setPaint(curves[0].getColor());
                 g2.drawString("PINK USES ARROWS", stringx - 105, stringy + 20);
@@ -205,16 +207,32 @@ public class CurvesPanel extends JPanel {
                 g2.setPaint(curves[3].getColor());
                 g2.drawString("GREEN USES O/P", stringx - 90, stringy + 80);
             }
+            //if an exception was thrown we just catch it without printing the succeeding player messages
             catch(ArrayIndexOutOfBoundsException e) {}
             g2.setPaint(Color.WHITE);
             g2.drawString("PRESS ENTER FOR NEW GAME AT ANY TIME", stringx - 225, stringy + 150);
         }
+        //intro is over
         else {
             //hack solution to hide intro text
             g2.setPaint(getBackground());
-            g2.fillRect(0, 0, width+50, height+50);
+            g2.fillRect(0, 0, width + 50, height + 50);
         }
-        if(winnerId == 99) {
+        //draw the curves
+        for(Curve c : curves) {
+            //add the next curve segment
+            if(c.isAlive())
+                c.advance(curves);
+            HashSet<CurveSegment> currentPath = c.getPath();
+            g2.setPaint(c.getColor());
+            //loop through each segment of the curve and draw
+            for(Shape s : currentPath) {
+                g2.fill(s);
+            }
+        }
+        //check for win/tie
+        //output tie message
+        if(winnerId == GAME_TIED) {
             //it's a tie
             g2.setPaint(Color.RED);
             g2.setFont(msgFont);
@@ -222,25 +240,13 @@ public class CurvesPanel extends JPanel {
             g2.drawString("It's a tie!", width/2-50, height/2);
             gameLoop.stop();
         }
+        //output win message
         else if(winnerId != -1) {
-            //someone has won
             g2.setPaint(curves[winnerId].getColor());
             g2.setFont(msgFont);
             //+1 since most people use 1-based indexing!
             g2.drawString("Player " + (winnerId+1) + " has won!", width/2-100, height/2);
             gameLoop.stop();
-        }
-        //draw the curves
-        for(Curve c : curves) {
-            //add the next curve segment
-            if(c.isAlive())
-                c.advance(curves);
-            HashSet<Ellipse2D.Double> currentPath = c.getPath();
-            g2.setPaint(c.getColor());
-            //loop through each segment of the curve and draw
-            for(Shape s : currentPath) {
-                g2.fill(s);
-            }
         }
     }
 }
