@@ -10,7 +10,7 @@ public class Curve {
     //size of each circle centered around a coordinate
     private final int SIZE = 10;
     //speed at which curves move
-    private final double SPEED = 2;
+    private final double SPEED = 4;
     //4 is the max # of players RN so we specify 4 values for each of these
     //these hardcoded values are hopefully temporary. maybe switch to starting from the corners?
     private static final Color[]    COLORS =    {
@@ -26,7 +26,7 @@ public class Curve {
     //angle at which the curve is going
                     heading,
     //window dimensions
-                    WIDTH, HEIGHT;
+                    width, height;
     //only final variables should be in caps, but this way it's consistent with CurvesPanel
     //color of the curve
     private Color color;
@@ -42,8 +42,8 @@ public class Curve {
      */
     public Curve(int idIn, Dimension size) {
         //get dimensions from the input
-        WIDTH = size.getWidth();
-        HEIGHT = size.getHeight();
+        width = size.getWidth();
+        height = size.getHeight();
         id = idIn;
         path = new HashSet<>();
         color = COLORS[id];
@@ -60,19 +60,19 @@ public class Curve {
                 heading = 45;
             }
             else {
-                y = HEIGHT-OFFSET;
+                y = height-OFFSET;
                 heading = 315;
             }
         }
         //1 and 3 start from right
         else {
-            x = WIDTH-OFFSET;
+            x = width-OFFSET;
             if(id == 1) {
                 y = OFFSET;
                 heading = 135;
             }
             else {
-                y = HEIGHT-OFFSET;
+                y = height-OFFSET;
                 heading = 225;
             }
         }
@@ -93,7 +93,7 @@ public class Curve {
         y += Math.sin(toRadians) * SPEED;
         //check for collisions
         //wall collisions
-        if(x >= WIDTH || x <= SIZE/2 || y >= HEIGHT || y <= SIZE/2)
+        if(x >= width || x <= SIZE/2 || y >= height || y <= SIZE/2)
             kill();
 
         //next part of the curve to be added

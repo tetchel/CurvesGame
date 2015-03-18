@@ -13,10 +13,10 @@ public class CurvesPanel extends JPanel {
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
     private boolean start = false;
-    private int     height, width, numPlayers;
+    private int     height, width, numPlayers, winnerId = -1;
     //TODO allow user to pick numPlayers
     ///////////////////////////////PANEL methods///////////////////////////////
-    public CurvesPanel(Dimension d, int numPlayersIn) {
+    public CurvesPanel(final Dimension d, int numPlayersIn) {
         //basic set-up
         setPreferredSize(d);
         setBackground(Color.BLACK);
@@ -53,6 +53,10 @@ public class CurvesPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 start = true;
                 gameLoop.start();
+                //restart the game when enter is hit
+                for(int i = 0; i < curves.length; i++) {
+                    curves[i] = new Curve(i, d);
+                }
             }
         });
 
@@ -100,7 +104,7 @@ public class CurvesPanel extends JPanel {
         getActionMap().put(key, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Curve c = null;
+                Curve c;
                 try {
                     c = curves[index];
                     if(c.isAlive())
@@ -112,10 +116,29 @@ public class CurvesPanel extends JPanel {
     }
     ///////////////////////////////GAME methods///////////////////////////////
     //timer which ticks 60 times/second to update the window at a silky smooth 60fps.
-    private class TimerListener implements ActionListener {
+    public class TimerListener implements ActionListener {
         //TODO detect winner
         @Override
         public void actionPerformed(ActionEvent ae) {
+            int alive = 0;
+            int tmp = -1;
+            for(Curve c : CurvesPanel.this.curves) {
+                //cycle through curves and see which are left alive
+                if(c.isAlive()) {
+                    alive++;
+                    tmp = c.getId();
+                }
+            }
+            if(alive == 1) {
+                //game is over
+                winnerId = tmp;
+            }
+            //if tmp was never set, every curve is dead!
+            else if(tmp == -1) {
+                //99 is arbitrary 'code' number to say that everyone is dead
+                //should use static final variable but why would I change this ever?
+                winnerId = 99;
+            }
             repaint();		//redraw the window
         }
     }
@@ -135,12 +158,13 @@ public class CurvesPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
+        Font msgFont = new Font("Comic Sans", Font.BOLD, 20);
         //output intro text
         if(!start) {
             int stringy = height/2, stringx = width/2;
             //prepare for the most magical of numbers
             g2.setPaint(Color.WHITE);
-            g2.setFont(new Font("Comic Sans", Font.BOLD, 20));
+            g2.setFont(msgFont);
             g2.drawString("WELCOME TO CURVES", stringx - 130, stringy - 50);
             try {
                 g2.setPaint(curves[0].getColor());
@@ -162,6 +186,23 @@ public class CurvesPanel extends JPanel {
             g2.setPaint(getBackground());
             g2.fillRect(0, 0, width, height);
         }
+
+        if(winnerId == 99) {
+            g2.setPaint(Color.RED);
+            g2.setFont(msgFont);
+            //+1 since most people use 1-based indexing!
+            g2.drawString("It's a tie!", width/2-50, height/2);
+            gameLoop.stop();
+        }
+        else if(winnerId != -1) {
+            //game is over
+            g2.setPaint(curves[winnerId].getColor());
+            g2.setFont(msgFont);
+            //+1 since most people use 1-based indexing!
+            g2.drawString("Player " + (winnerId+1) + " has won!", width/2-50, height/2);
+            gameLoop.stop();
+        }
+
         //draw the curves
         for(Curve c : curves) {
             //add the next curve segment
