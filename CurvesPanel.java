@@ -13,11 +13,10 @@ public class CurvesPanel extends JPanel {
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
     private boolean start = false;
-    private int     height, width,
+    private int     height, width, numPlayers;
     //TODO allow user to pick numPlayers
-                    numPlayers = 4;
-    ///////////////////////////////APPLET methods///////////////////////////////
-    public CurvesPanel(Dimension d) {
+    ///////////////////////////////PANEL methods///////////////////////////////
+    public CurvesPanel(Dimension d, int numPlayersIn) {
         //basic set-up
         setPreferredSize(d);
         setBackground(Color.BLACK);
@@ -26,16 +25,13 @@ public class CurvesPanel extends JPanel {
 
         height  =   (int)d.getHeight();
         width   =   (int)d.getWidth();
-
+        numPlayers = numPlayersIn;
         gameLoop = new javax.swing.Timer(17, new TimerListener());			//ticks 1000/17 = 60 FPS
 
-        //be aware <4 players will result in exceptions being thrown for now.
-
-        curves = new Curve[numPlayers];
+        curves = new Curve[numPlayersIn];
         for(int i = 0; i < curves.length; i++) {
             curves[i] = new Curve(i, d);
         }
-
         //add key bindings, this is heavy
         //the name of each key binding
         final String[] KEYS = new String[]  {
@@ -48,7 +44,6 @@ public class CurvesPanel extends JPanel {
                                                 "OAction",
                                                 "PAction"
                                             };
-
 
         //we do enter manually because its action is different from the others
         //addInput and addAction are helper methods to minimize repetition
@@ -75,20 +70,18 @@ public class CurvesPanel extends JPanel {
 
         //map curve turning actions
         //manually map the first one so the loop works for the rest
-        addAction(KEYS[0], 0, true);
+        addAction(KEYS[0], 0, false);
         int j = 0;
         for(i = 1; i < KEYS.length; i++) {
-            boolean b = false;
+            boolean b = true;
             if(i % 2 == 0) {
                 j++;
-                b = true;
+                b = false;
             }
             addAction(KEYS[i], j, b);
         }
     }
-
     ///////////////////////////////KEYBINDINGS methods///////////////////////////////
-
     /**
      * Helper method for the constructor so I don't have to manually put all the inputs
      * @param keyChar key code for the binding
@@ -97,7 +90,6 @@ public class CurvesPanel extends JPanel {
     private void addInput(int keyChar, String key) {
         getInputMap().put(KeyStroke.getKeyStroke(keyChar, 0), key);
     }
-
     /**
      * Helper method for the constructor so that I don't have to manually put all the actions
      * @param key the actionMap name
@@ -118,16 +110,15 @@ public class CurvesPanel extends JPanel {
             }
         });
     }
-
     ///////////////////////////////GAME methods///////////////////////////////
     //timer which ticks 60 times/second to update the window at a silky smooth 60fps.
     private class TimerListener implements ActionListener {
+        //TODO detect winner
         @Override
         public void actionPerformed(ActionEvent ae) {
             repaint();		//redraw the window
         }
     }
-
     /**
      * Called when the containing frame is closed
      */
@@ -135,7 +126,6 @@ public class CurvesPanel extends JPanel {
         gameLoop.stop();
         System.exit(0);
     }
-
 
     ///////////////////////////////paintComponent///////////////////////////////
     @Override
@@ -172,12 +162,11 @@ public class CurvesPanel extends JPanel {
             g2.setPaint(getBackground());
             g2.fillRect(0, 0, width, height);
         }
-
         //draw the curves
         for(Curve c : curves) {
             //add the next curve segment
             if(c.isAlive())
-                c.advance();
+                c.advance(curves);
             HashSet<Ellipse2D.Double> currentPath = c.getPath();
             g2.setPaint(c.getColor());
             //loop through each segment of the curve and draw

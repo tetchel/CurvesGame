@@ -15,15 +15,18 @@ public class CurvesMain {
         final JFrame f = new JFrame("~~~~~~~~~~~~~~~ Drawing simulator 2015 ~~~~~~~~~~~~~~~");
 
         Dimension d = null;
+        //4 players if nothing specified
+        int numPlayers = 0;
         try {
             d = new Dimension(Integer.parseInt(a[0]), Integer.parseInt(a[1]));
+            numPlayers = Integer.parseInt(a[2]);
         }
         catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {
             exit();
         }
 
         //the game panel
-        final CurvesPanel cp = new CurvesPanel(d);
+        final CurvesPanel cp = new CurvesPanel(d, numPlayers);
         //match the frame's size to the panel
         f.setSize(cp.getSize());
         f.setBackground(Color.BLACK);
@@ -44,7 +47,7 @@ public class CurvesMain {
     }
 
     private static void exit() {
-        System.out.println("Usage: java -jar Curves.jar <width> <height>");
+        System.out.println("Usage: java -jar Curves.jar <width> <height> <number_of_players>");
         System.exit(-1);
     }
 }
