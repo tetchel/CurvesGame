@@ -16,7 +16,7 @@ public class Curve {
     private static final Color[]    COLORS =    {
                                                     Color.MAGENTA,
                                                     Color.WHITE,
-                                                    Color.CYAN,
+                                                    Color.YELLOW,
                                                     Color.GREEN
                                                 };
     //contains the circles that make up each curve
@@ -101,7 +101,7 @@ public class Curve {
 
         for(int i = 0; i < curves.length; i++) {
             //check collision will kill the colliding curve if a collision exists
-            //TODO remove the 'if' so that they can suicide
+            //TODO remove the 'if' and modify so that they can suicide
             if(getId() != curves[i].getId())
                 checkCollision(next, curves[i]);
         }
@@ -121,7 +121,7 @@ public class Curve {
             if(distance <= SIZE) {
                 //TODO right now when a collision occurs you see that it happens twice, why is this?
                 System.out.printf("Curve %d has collided with curve %d%n", getId(), curve.getId());
-                System.out.printf("%g %g %g %g%n", e.getX(), e.getY(), current.getX(), current.getY());
+                System.out.printf("Collision points: x: %g y: %g x: %g y: %g%n", e.getX(), e.getY(), current.getX(), current.getY());
                 kill();
             }
         }
@@ -170,11 +170,17 @@ public class Curve {
     public boolean isAlive() {
         return isAlive;
     }
-
+    /**
+     *
+     * @return the size of an individual circle
+     */
     public int getSize() {
         return SIZE;
     }
-
+    /**
+     *
+     * @return this curve's unique id
+     */
     public int getId() {
         return id;
     }
@@ -185,5 +191,4 @@ public class Curve {
         isAlive = false;
         color = Color.RED;
     }
-
 }
