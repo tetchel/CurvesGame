@@ -87,7 +87,7 @@ public class CurvesPanel extends JPanel {
         //can't use a loop for the first part, the keyChar changes each time
         int i = 0;
         addInput(KeyEvent.VK_LEFT, KEYS[i++]);
-        addInput(KeyEvent.VK_RIGHT, KEYS[i++]);
+        addInput(KeyEvent.VK_RIGHT,KEYS[i++]);
         addInput(KeyEvent.VK_Q, KEYS[i++]);
         addInput(KeyEvent.VK_W, KEYS[i++]);
         addInput(KeyEvent.VK_V, KEYS[i++]);
@@ -110,6 +110,7 @@ public class CurvesPanel extends JPanel {
         }
     }
     ///////////////////////////////KEYBINDINGS methods///////////////////////////////
+    //TODO figure out a way to queue up inputs so that multiple keys can be processed at once.
     /**
      * Helper method for the constructor so I don't have to manually put all the inputs
      * @param keyChar key code for the binding
@@ -190,8 +191,6 @@ public class CurvesPanel extends JPanel {
         final Font MSG_FONT = new Font("Arial Black", Font.PLAIN, 20);
         //output intro text
         if(!start) {
-            //prepare for the most magical of numbers
-            g2.setPaint(Color.WHITE);
             g2.setFont(MSG_FONT);
             final String[] OUTPUTS = new String[]   {
                                                         "Welcome to CURVES",
@@ -249,7 +248,6 @@ public class CurvesPanel extends JPanel {
         if(winnerId == GAME_TIED) {
             //it's a tie
             g2.setPaint(Color.RED);
-            g2.setFont(MSG_FONT);
             String s = "It's a tie!";
             //the next line is messy but essentially it draws the string in the center of the screen, adjusting for
             //the length of the string
@@ -259,7 +257,6 @@ public class CurvesPanel extends JPanel {
         //output win message
         else if(winnerId != -1) {
             g2.setPaint(curves[winnerId].getColor());
-            g2.setFont(MSG_FONT);
             //+1 since most people use 1-based indexing!
             String s = "Player " + (winnerId+1) + " has won!";
             g2.drawString(s, width/2-getStringLength(s,g2)/2, height/2);

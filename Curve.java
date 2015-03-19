@@ -120,11 +120,8 @@ public class Curve {
             }
             //calculate distance and see if there is a collision or not.
             double distance = cartDistance(c.getX(), c.getY(), current.getX(), current.getY());
-            if (distance <= SIZE) {
-                //System.out.printf("Curve %d has collided with curve %d%n", getId(), curve.getId());
-                //System.out.printf("Collision points: x: %g y: %g x: %g y: %g%n", c.getX(), c.getY(), current.getX(), current.getY());
+            if (distance <= SIZE)
                 killCurve();
-            }
         }
     }
     /**
