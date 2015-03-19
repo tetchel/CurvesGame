@@ -14,9 +14,8 @@ public class CurvesMain {
         //frame to contain the panel
         final JFrame f = new JFrame("~~~~~~~~~~~~~~~ Curves ~~~~~~~~~~~~~~~");
 
-        Dimension d = null;
-        //4 players if nothing specified
-        int numPlayers = 0;
+        Dimension d;
+        int numPlayers;
         try {
             d = new Dimension(Integer.parseInt(a[0]), Integer.parseInt(a[1]));
             numPlayers = Integer.parseInt(a[2]);
@@ -27,7 +26,10 @@ public class CurvesMain {
         }
         catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {
             System.out.println("Usage: java -jar Curves.jar <width> <height> <number_of_players>");
-            System.exit(-1);
+            System.out.println("Game will run with default settings.");
+            //default values - 720p and 4 players
+            d = new Dimension(1280, 720);
+            numPlayers = 4;
         }
 
         //the game panel
