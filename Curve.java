@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 //represents a curve in the game as a series of points the curve has visited.
 public class Curve {
-
     //size of each circle centered around a coordinate
     private final int SIZE = 10;
     //speed at which curves move
@@ -160,21 +159,18 @@ public class Curve {
         return path;
     }
     /**
-     *
      * @return the color of this curve (red if dead)
      */
     public Color getColor() {
         return color;
     }
     /**
-     *
      * @return whether or not this curve is still active
      */
     public boolean isAlive() {
         return isAlive;
     }
     /**
-     *
      * @return this curve's unique id
      */
     public int getId() {

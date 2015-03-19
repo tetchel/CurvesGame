@@ -26,7 +26,8 @@ public class CurvesMain {
             }
         }
         catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            exit();
+            System.out.println("Usage: java -jar Curves.jar <width> <height> <number_of_players>");
+            System.exit(-1);
         }
 
         //the game panel
@@ -43,17 +44,10 @@ public class CurvesMain {
                 cp.terminate();
             }
         });
-        //pack makes the frame fit its contents
+        //pack frame to fit contents
         f.pack();
+        //resizing the window would screw up the game drastically, set it at runtime instead
         f.setResizable(false);
         f.setVisible(true);
-    }
-
-    /**
-     * called when command line arguments are invalid
-     */
-    private static void exit() {
-        System.out.println("Usage: java -jar Curves.jar <width> <height> <number_of_players>");
-        System.exit(-1);
     }
 }

@@ -10,6 +10,7 @@ import java.awt.geom.Ellipse2D;
  */
 public class CurveSegment extends Ellipse2D.Double {
     private int id;
+    //takes the parameters required to create an Ellipse2D as well as an additional ID which is assigned to each object.
     public CurveSegment(double x, double y, double w, double h, int idIn) {
         //construct the ellipse
         super(x, y, w, h);

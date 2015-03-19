@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 
 public class CurvesPanel extends JPanel {
-
     private Curve[] curves;
     private javax.swing.Timer gameLoop;
     private boolean start = false;
@@ -52,8 +51,8 @@ public class CurvesPanel extends JPanel {
             O/P P4
          */
         //we do enter and esc manually because they are not movement actions
-        //addMoveInput and addMoveAction are helper methods to minimize repetition
-        addMoveInput(KeyEvent.VK_ENTER, "enterAction");
+        //addInput and addMoveAction are helper methods to minimize repetition
+        addInput(KeyEvent.VK_ENTER, "enterAction");
         getActionMap().put("enterAction", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,7 +75,7 @@ public class CurvesPanel extends JPanel {
             }
         });
         //map escape to exit the game
-        addMoveInput(KeyEvent.VK_ESCAPE, "escAction");
+        addInput(KeyEvent.VK_ESCAPE, "escAction");
         getActionMap().put("escAction", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -87,14 +86,14 @@ public class CurvesPanel extends JPanel {
         //quick iterator for accessing key values
         //can't use a loop for the first part, the keyChar changes each time
         int i = 0;
-        addMoveInput(KeyEvent.VK_LEFT, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_RIGHT, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_Q, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_W, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_V, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_B, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_O, KEYS[i++]);
-        addMoveInput(KeyEvent.VK_P, KEYS[i]);
+        addInput(KeyEvent.VK_LEFT, KEYS[i++]);
+        addInput(KeyEvent.VK_RIGHT, KEYS[i++]);
+        addInput(KeyEvent.VK_Q, KEYS[i++]);
+        addInput(KeyEvent.VK_W, KEYS[i++]);
+        addInput(KeyEvent.VK_V, KEYS[i++]);
+        addInput(KeyEvent.VK_B, KEYS[i++]);
+        addInput(KeyEvent.VK_O, KEYS[i++]);
+        addInput(KeyEvent.VK_P, KEYS[i]);
 
         //map curve turning actions
         //manually map the first one so the loop works for the rest
@@ -116,7 +115,7 @@ public class CurvesPanel extends JPanel {
      * @param keyChar key code for the binding
      * @param key name for the binding
      */
-    private void addMoveInput(int keyChar, String key) {
+    private void addInput(int keyChar, String key) {
         getInputMap().put(KeyStroke.getKeyStroke(keyChar, 0), key);
     }
     /**
@@ -203,7 +202,7 @@ public class CurvesPanel extends JPanel {
                                                         "Press ENTER for a new game"
                                                     };
             //where the top string will be drawn
-            int stringy = height/5;
+            int stringy = height/20;
             for(int i = 0; i < OUTPUTS.length; i++) {
                 //if we're outputting a "PLAYER USES BUTTONS" method, do it in the player's colour
                 if(i > 0 && i < OUTPUTS.length-1) {
@@ -213,6 +212,7 @@ public class CurvesPanel extends JPanel {
                     }
                     catch(ArrayIndexOutOfBoundsException e) {
                         //if it's out-of-bounds just go to the next iteration (until you reach the last one)
+                        //not perfectly efficient but it works
                         continue;
                     }
                 }
@@ -251,6 +251,8 @@ public class CurvesPanel extends JPanel {
             g2.setPaint(Color.RED);
             g2.setFont(MSG_FONT);
             String s = "It's a tie!";
+            //the next line is messy but essentially it draws the string in the center of the screen, adjusting for
+            //the length of the string
             g2.drawString(s, width/2-getStringLength(s,g2)/2, height/2);
             gameLoop.stop();
         }
